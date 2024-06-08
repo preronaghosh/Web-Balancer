@@ -8,6 +8,9 @@ A simple multithreaded web server with a load balancer implemented in C++.
 - Distributes requests across multiple servers.
 - Uses a thread pool for efficient task execution.
 
+## Dependencies
+- GoogleTest
+
 ## Manual and Automated Build Scripts
 
 ### Manual Build
