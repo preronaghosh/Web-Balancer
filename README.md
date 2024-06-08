@@ -11,13 +11,16 @@ A simple multithreaded web server with a load balancer implemented in C++.
 ## How to Build
 
 ```bash
+mkdir build/
+cd build/
 cmake ..
+make
+./main
 ```
 
 ## Example Request
 
 ```bash
-cd build/
 curl http://localhost:8080
 ```
 
