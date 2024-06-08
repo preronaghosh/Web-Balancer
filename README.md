@@ -20,7 +20,7 @@ make
 
 ## Run servers with script
 ```bash
-./run_server.sh --port=1234 
+./run_server.sh --port=1234 --servers=4
 ```
 
 ## Example Request
