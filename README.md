@@ -1,4 +1,4 @@
-# Multithreaded Web Server with Load Balancer
+# Web-Balancer
 
 A simple multithreaded web server with a load balancer implemented in C++.
 
