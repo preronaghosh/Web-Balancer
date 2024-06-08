@@ -11,7 +11,7 @@
  * This class encapsulates the functionality of a TCP server, allowing it to accept incoming client connections
  * and delegate the handling of these connections to a user-defined request handler function.
  * 
- * @note This class operates in a single-threaded manner, handling each client connection sequentially.
+ * @note This class operates in a multi-threaded manner, handling each client connection in parallel using multiple worker threads.
  */
 
 class Server {
@@ -36,9 +36,8 @@ public:
     /**
      * @brief Enqueues the task for execution by a free worker thread
      * 
-     * Once loadbalancer selects a server, this function of the selected 
-     * server objec is called. Worker threads on this server will finish the execution of 
-     * the new request.
+     * Once loadbalancer selects a server, this function of the selected server instance is called. 
+     * Worker threads from this server will finish the execution of the new request.
      */
     void selectedServerToHandleRequest(int clientSocket);
 
@@ -46,7 +45,7 @@ private:
     int port; ///< The port number on which the server listens for incoming connections.
     std::function<void(int)> requestHandler; ///< The function to handle incoming client connections.
 
-    ThreadPool threadPool; ///< The thread pool for parallel request processing.
+    ThreadPool threadPool; ///< The thread pool for parallel request processing in the current server instance.
 
     /**
      * @brief Accepts incoming client connections and delegates them to the request handler function.

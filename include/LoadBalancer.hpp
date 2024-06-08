@@ -55,7 +55,8 @@ private:
 
 
     /**
-     * @brief Returns the next server that can handle the new incoming request
+     * @brief Returns the next server that can handle the new incoming request.
+     * @note Uses Round Robin Algorithm for selection.
      */
     int getNextServer();
 };
