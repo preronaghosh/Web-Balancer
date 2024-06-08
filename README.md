@@ -17,6 +17,7 @@ cmake ..
 ## Example Request
 
 ```bash
+cd build/
 curl http://localhost:8080
 ```
 
