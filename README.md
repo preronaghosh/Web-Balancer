@@ -8,7 +8,7 @@ A simple multithreaded web server with a load balancer implemented in C++.
 - Distributes requests across multiple servers.
 - Uses a thread pool for efficient task execution.
 
-## How to Build
+## How to Build Manually
 
 ```bash
 mkdir build/
@@ -16,6 +16,11 @@ cd build/
 cmake ..
 make
 ./main
+```
+
+## Run servers with script
+```bash
+./run_server.sh --port=1234 
 ```
 
 ## Example Request
