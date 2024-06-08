@@ -5,11 +5,25 @@
 #include <netinet/in.h>
 
 Server::Server(int port, int workerThreads, std::function<void(int)> requestHandler)
-    : port(port), threadPool(workerThreads), requestHandler(requestHandler) {}
+    : port{port}, 
+      threadPool(workerThreads), 
+      requestHandler{requestHandler}, 
+      currState{ServerState::STARTING},
+      serverFd{-1} {}
 
 
 void Server::start() {
+    setServerState(ServerState::STARTING);
     std::thread(&Server::acceptConnections, this).detach();
+}
+
+void Server::stop() {
+    setServerState(ServerState::SHUTTING_DOWN);
+    if (serverFd != -1) {
+        close(serverFd);
+        serverFd = -1;
+    }
+    setServerState(ServerState::STOPPED);
 }
 
 void Server::selectedServerToHandleRequest(int clientSocket) {
@@ -24,7 +38,6 @@ void Server::selectedServerToHandleRequest(int clientSocket) {
 }
 
 void Server::acceptConnections() {
-    int serverFd, newSocket;
     struct sockaddr_in address;
     int addrlen = sizeof(address);
 
@@ -47,17 +60,27 @@ void Server::acceptConnections() {
         return;
     }
 
-    while (true) {
+    setServerState(ServerState::ACTIVE);
+
+    while (getServerState() == ServerState::ACTIVE) {
+        int newSocket;
         if ((newSocket = accept(serverFd, (struct sockaddr *)&address, (socklen_t*)&addrlen)) < 0) {
+            if (getServerState() == ServerState::SHUTTING_DOWN) {
+                break; // Exit accept loop if shutting down
+            }
             std::cerr << "Accept failed" << std::endl;
             return;
         }
 
         if (requestHandler) {
+            setServerState(ServerState::SERVING);
             requestHandler(newSocket);
+            setServerState(ServerState::ACTIVE);
         } else {
             std::cerr << "Request handler not set" << std::endl;
             close(newSocket);
         }
     }
+
+    setServerState(ServerState::STOPPED);
 }
