@@ -1,5 +1,7 @@
 #include <csignal>
-#include <string>    
+#include <string>   
+#include <stdexcept>
+#include <cstdlib>
 #include "LoadBalancer.hpp"
 #include "Logger.hpp"
 
@@ -14,22 +16,30 @@ void keyboardIntHandler(int signum) {
 int main(int argc, char* argv[]) {
     // Handle keyboard interrupt
     signal(SIGINT, keyboardIntHandler);
-    int port;
+    int port = 8080; // Default port
+    int numServers = 1; // Default number of servers
 
     if (argc > 1) {
         try {
-            port = std::stoi(argv[1]);
+            for (int i = 1; i < argc; ++i) {
+                std::string arg = argv[i];
+                if (arg.find("--port=") == 0) {
+                    port = std::stoi(arg.substr(7));
+                } else if (arg.find("--servers=") == 0) {
+                    numServers = std::stoi(arg.substr(10));
+                }
+            }
         } catch (const std::invalid_argument& e) {
-            std::cerr << "Invalid port number provided: " << argv[1] << std::endl;
+            std::cerr << "Invalid argument provided: " << e.what() << std::endl;
             return 1; 
         } catch (const std::out_of_range& e) {
-            std::cerr << "Port number out of range: " << argv[1] << std::endl;
+            std::cerr << "Argument out of range: " << e.what() << std::endl;
             return 1; 
         }
     }
 
     LOGINFO("Starting a load balancer..");
-    LoadBalancer lb(port, 4, std::thread::hardware_concurrency());
+    LoadBalancer lb(port, numServers, std::thread::hardware_concurrency());
     lb.start();
 
     // Prevent the main thread from exiting

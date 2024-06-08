@@ -1,16 +1,19 @@
 #!/bin/bash
 
 # Parse command-line arguments
-for arg in "$@"
-do
-    case $arg in
+while [[ $# -gt 0 ]]; do
+    case $1 in
         --port=*)
-        PORT="${arg#*=}"
-        shift # Remove the argument and its value from the list
+        PORT="${1#*=}"
+        shift
+        ;;
+        --servers=*)
+        SERVERS="${1#*=}"
+        shift
         ;;
         *)
         # Unknown option
-        echo "Unknown option: $arg"
+        echo "Unknown option: $1"
         exit 1
         ;;
     esac
@@ -19,6 +22,12 @@ done
 # Validate port number
 if ! [[ "$PORT" =~ ^[0-9]+$ ]]; then
     echo "Invalid port number: $PORT"
+    exit 1
+fi
+
+# Validate number of servers
+if ! [[ "$SERVERS" =~ ^[0-9]+$ ]]; then
+    echo "Invalid number of servers: $SERVERS"
     exit 1
 fi
 
@@ -31,5 +40,5 @@ cd build/
 cmake ..
 make
 
-# Run the generated executable with the extracted port number
-./main $PORT
+# Run the generated executable with the extracted port number and number of servers
+./main --port="$PORT" --servers="$SERVERS"
