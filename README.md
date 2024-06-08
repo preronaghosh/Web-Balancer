@@ -18,7 +18,7 @@ make
 ./main
 ```
 
-## Run servers with script
+## Automated Build and Execution
 ```bash
 ./run_server.sh --port=1234 --servers=4
 ```
