@@ -17,6 +17,7 @@ void Server::start() {
     std::thread(&Server::acceptConnections, this).detach();
 }
 
+// Not called by anyone currently
 void Server::stop() {
     setServerState(ServerState::SHUTTING_DOWN);
     if (serverFd != -1) {
@@ -79,8 +80,7 @@ void Server::acceptConnections() {
         } else {
             std::cerr << "Request handler not set" << std::endl;
             close(newSocket);
+            setServerState(ServerState::INACTIVE);
         }
     }
-
-    setServerState(ServerState::STOPPED);
 }
