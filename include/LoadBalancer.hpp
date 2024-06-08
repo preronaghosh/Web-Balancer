@@ -4,8 +4,8 @@
 #include <vector>
 #include <memory>
 #include <thread>
+#include <atomic>
 #include "Server.hpp"
-#include "ThreadPool.hpp"
 
 /**
  * @brief The LoadBalancer class represents a TCP load balancer that distributes incoming client connections 
@@ -27,9 +27,9 @@ public:
      * 
      * @param port The base port number on which the server instances will listen for incoming connections.
      * @param numServers The number of server instances to create for load balancing.
-     * @param numThreads The number of worker threads in the thread pool for request processing.
+     * @param numThreadsPerServer The number of worker threads in the thread pool for every server for request processing.
      */
-    LoadBalancer(int port, int numServers, int numThreads);
+    LoadBalancer(int port, int numServers, int numThreadsPerServer);
 
     /**
      * @brief Starts the load balancer and all associated server instances.
@@ -41,8 +41,7 @@ public:
 
 private:
     std::vector<std::shared_ptr<Server>> servers; ///< The pool of server instances managed by the load balancer.
-    ThreadPool threadPool; ///< The thread pool for parallel request processing.
-    int nextServer; ///< Index of the next server instance to which a client connection should be directed.
+    std::atomic<int> nextServer; ///< Index of the next server instance to which a client connection should be directed.
 
     /**
      * @brief Handles an incoming client connection by enqueueing it into the thread pool for processing.
@@ -53,6 +52,12 @@ private:
      * by one of the worker threads.
      */
     void handleRequest(int clientSocket);
+
+
+    /**
+     * @brief Returns the next server that can handle the new incoming request
+     */
+    int getNextServer();
 };
 
 #endif // LOADBALANCER_HPP

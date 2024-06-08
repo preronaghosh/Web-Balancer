@@ -4,11 +4,23 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 
-Server::Server(int port, std::function<void(int)> requestHandler)
-    : port(port), requestHandler(requestHandler) {}
+Server::Server(int port, int workerThreads, std::function<void(int)> requestHandler)
+    : port(port), threadPool(workerThreads), requestHandler(requestHandler) {}
+
 
 void Server::start() {
     std::thread(&Server::acceptConnections, this).detach();
+}
+
+void Server::selectedServerToHandleRequest(int clientSocket) {
+    threadPool.enqueueTask([clientSocket]() {
+        char buffer[1024] = {0};
+        read(clientSocket, buffer, 1024);
+        std::cout << "Received a request: " << buffer << std::endl;
+        std::string response = "HTTP/1.1 200 OK\r\nContent-Length: 13\r\n\r\nHello, World!";
+        send(clientSocket, response.c_str(), response.size(), 0);
+        close(clientSocket);
+    });
 }
 
 void Server::acceptConnections() {

@@ -3,6 +3,7 @@
 
 #include <functional>
 #include <thread>
+#include "ThreadPool.hpp"
 
 /**
  * @brief The Server class represents a TCP server that listens for incoming connections on a specified port.
@@ -22,7 +23,7 @@ public:
      * @param requestHandler The function to handle incoming client connections. This function
      * will be called with the client socket file descriptor as its argument.
      */
-    Server(int port, std::function<void(int)> requestHandler);
+    Server(int port, int workerThreads, std::function<void(int)> requestHandler);
 
     /**
      * @brief Starts the server, allowing it to accept incoming connections.
@@ -32,9 +33,20 @@ public:
      */
     void start();
 
+    /**
+     * @brief Enqueues the task for execution by a free worker thread
+     * 
+     * Once loadbalancer selects a server, this function of the selected 
+     * server objec is called. Worker threads on this server will finish the execution of 
+     * the new request.
+     */
+    void selectedServerToHandleRequest(int clientSocket);
+
 private:
     int port; ///< The port number on which the server listens for incoming connections.
     std::function<void(int)> requestHandler; ///< The function to handle incoming client connections.
+
+    ThreadPool threadPool; ///< The thread pool for parallel request processing.
 
     /**
      * @brief Accepts incoming client connections and delegates them to the request handler function.
