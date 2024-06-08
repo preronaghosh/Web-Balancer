@@ -31,6 +31,8 @@ void ThreadPool::workerThread() {
         {
             std::unique_lock<std::mutex> lock(queueMutex);
             condition.wait(lock, [this] { return stop || !tasks.empty(); });
+            // worker stops when there are no tasks and thread pool should stop accepting multiple requests
+            // since stop is 'true' only when dtor is called, worked only gets activated when there is a new task
             if (stop && tasks.empty()) {
                 return;
             }

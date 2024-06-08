@@ -1,6 +1,8 @@
+#include <csignal>
+#include <string>    
 #include "LoadBalancer.hpp"
 #include "Logger.hpp"
-#include <csignal>
+
 
 void keyboardIntHandler(int signum) {
     LOGWARN("Shutting down server..");
@@ -9,12 +11,25 @@ void keyboardIntHandler(int signum) {
     exit(signum);
 }
 
-int main() {
+int main(int argc, char* argv[]) {
     // Handle keyboard interrupt
     signal(SIGINT, keyboardIntHandler);
+    int port;
 
-    LOGINFO("Starting a load balancer on port 8080..");
-    LoadBalancer lb(8080, 4, std::thread::hardware_concurrency());
+    if (argc > 1) {
+        try {
+            port = std::stoi(argv[1]);
+        } catch (const std::invalid_argument& e) {
+            std::cerr << "Invalid port number provided: " << argv[1] << std::endl;
+            return 1; 
+        } catch (const std::out_of_range& e) {
+            std::cerr << "Port number out of range: " << argv[1] << std::endl;
+            return 1; 
+        }
+    }
+
+    LOGINFO("Starting a load balancer..");
+    LoadBalancer lb(port, 4, std::thread::hardware_concurrency());
     lb.start();
 
     // Prevent the main thread from exiting

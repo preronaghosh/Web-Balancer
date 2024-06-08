@@ -23,7 +23,7 @@ void LoadBalancer::handleRequest(int clientSocket) {
     threadPool.enqueueTask([clientSocket]() {
         char buffer[1024] = {0};
         read(clientSocket, buffer, 1024);
-        std::cout << "Request: " << buffer << std::endl;
+        std::cout << "Received a request: " << buffer << std::endl;
         std::string response = "HTTP/1.1 200 OK\r\nContent-Length: 13\r\n\r\nHello, World!";
         send(clientSocket, response.c_str(), response.size(), 0);
         close(clientSocket);
