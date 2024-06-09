@@ -50,20 +50,11 @@ jobs:
     - name: Configure CMake
       run: cmake -S . -B build
 
-    - name: List test executable
-      run: |
-        cd build
-        ls -l tests
-
-    - name: Run tests
-      run: |
-        cd build
-        ctest --verbose
-
     - name: Run tests
       run: |
         mkdir -p build
         cd build
         cmake ..
         cmake --build .
+        cd tests
         ctest --output-on-failure
