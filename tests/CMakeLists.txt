@@ -7,12 +7,16 @@ include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
 include_directories(include)
 
 # Add test files
-set(TEST_SOURCES src/test_main.cpp)
+set(TEST_SOURCES 
+    src/serverTests.cpp
+    src/loadBalancerTests.cpp
+    src/tests_common.cpp)
 
 # Add source code files needed for testing
 set(SOURCE_FILES_FOR_TEST 
     ${CMAKE_SOURCE_DIR}/src/Server.cpp
-    ${CMAKE_SOURCE_DIR}/src/ThreadPool.cpp)
+    ${CMAKE_SOURCE_DIR}/src/ThreadPool.cpp
+    ${CMAKE_SOURCE_DIR}/src/LoadBalancer.cpp)
 
 add_executable(tests ${TEST_SOURCES} ${SOURCE_FILES_FOR_TEST})
 
