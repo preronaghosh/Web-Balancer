@@ -17,14 +17,18 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
+    - name: Set up CMake
+      uses: actions/setup-cmake@v2
+
+    - name: Set up Python (required for some CMake configurations)
+      uses: actions/setup-python@v2
+
     - name: Install dependencies
-      run: sudo apt-get update && sudo apt-get install -y cmake build-essential
+      run: sudo apt-get update && sudo apt-get install -y build-essential
 
-    - name: Create build directory
-      run: mkdir -p build
-
-    - name: Configure CMake
-      run: cmake -S . -B build
-
-    - name: Build with CMake
-      run: cmake --build build
+    - name: Build
+      run: |
+        mkdir -p build
+        cd build
+        cmake ..
+        cmake --build .
