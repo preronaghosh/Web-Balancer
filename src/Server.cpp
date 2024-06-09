@@ -17,6 +17,7 @@ Server::Server(int port, int workerThreads, std::function<void(int)> requestHand
       serverFd{-1} {
 
     // set rate limits
+    LOGINFO("Rate limits sets to 1 request per 4 seconds from an IpAddress");
     this->setRateLimit(1, std::chrono::seconds{4});
 }
 
