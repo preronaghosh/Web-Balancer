@@ -1,15 +1,24 @@
-#include "Server.hpp"
 #include <iostream>
 #include <unistd.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>
+#include "Server.hpp"
+#include "Logger.hpp"
+
+int Server::maxRequestsPerIp;
+std::chrono::seconds Server::rateLimitDuration;
 
 Server::Server(int port, int workerThreads, std::function<void(int)> requestHandler)
     : port{port}, 
       threadPool(workerThreads), 
       requestHandler{requestHandler}, 
       currState{ServerState::STARTING},
-      serverFd{-1} {}
+      serverFd{-1} {
+
+    // set rate limits
+    this->setRateLimit(1, std::chrono::seconds{4});
+}
 
 
 void Server::start() {
@@ -28,6 +37,19 @@ void Server::stop() {
 }
 
 void Server::selectedServerToHandleRequest(int clientSocket) {
+    struct sockaddr_in addr;
+    socklen_t addrLen = sizeof(addr);
+    getpeername(clientSocket, (struct sockaddr*)&addr, &addrLen);
+    std::string clientIp = inet_ntoa(addr.sin_addr);
+
+    // Reject request if it beyond the rate limits set
+    if (isRateLimited(clientIp)) {
+        std::string response = "HTTP/1.1 429 Too Many Requests\r\nContent-Length: 21\r\n\r\nToo Many Requests";
+        send(clientSocket, response.c_str(), response.size(), 0);
+        close(clientSocket);
+        return;
+    }
+
     threadPool.enqueueTask([clientSocket]() {
         char buffer[1024] = {0};
         read(clientSocket, buffer, 1024);
@@ -83,4 +105,24 @@ void Server::acceptConnections() {
             setServerState(ServerState::INACTIVE);
         }
     }
+}
+
+void Server::setRateLimit(int requests, std::chrono::seconds duration) {
+    maxRequestsPerIp = requests;
+    rateLimitDuration = duration;
+}
+
+bool Server::isRateLimited(const std::string& clientIp) {
+    auto currentTime = std::chrono::steady_clock::now();
+    auto& requestInfo = requestCountsPerIp[clientIp];
+
+    if (currentTime - requestInfo.second > rateLimitDuration) {
+        // not within the time window
+        requestInfo.first.store(1);
+        requestInfo.second = currentTime;
+    } else {
+        // increment request count if within the time window
+        requestInfo.first++;
+    }
+    return requestInfo.first > maxRequestsPerIp;
 }
