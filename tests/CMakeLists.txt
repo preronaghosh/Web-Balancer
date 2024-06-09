@@ -6,7 +6,15 @@ include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
 
 include_directories(include)
 
-add_executable(tests src/test_main.cpp)
+# Add test files
+set(TEST_SOURCES src/test_main.cpp)
+
+# Add source code files needed for testing
+set(SOURCE_FILES_FOR_TEST 
+    ${CMAKE_SOURCE_DIR}/src/Server.cpp
+    ${CMAKE_SOURCE_DIR}/src/ThreadPool.cpp)
+
+add_executable(tests ${TEST_SOURCES} ${SOURCE_FILES_FOR_TEST})
 
 # Link against Google Test libraries
 target_link_libraries(tests gtest gtest_main)

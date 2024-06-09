@@ -24,18 +24,18 @@ cmake .. && make
 ### Build Script
 
 ```bash
-./build.sh 
+./scripts/build.sh 
 ```
 
 ### Script for running tests after building
 
 ```bash
-./run_tests.sh 
+./scripts/run_tests.sh 
 ```
 
 ### Build and execute program
 ```bash
-./run_server.sh --port=1234 --servers=4
+./scripts/run_server.sh --port=1234 --servers=4
 ```
 
 

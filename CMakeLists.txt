@@ -10,10 +10,12 @@ add_subdirectory(lib/googletest)
 
 add_subdirectory(tests)
 
-# Add the source files to the executable target
-add_executable(main 
+set(SOURCE_FILES 
         src/main.cpp 
         src/LoadBalancer.cpp 
         src/Server.cpp 
         src/ThreadPool.cpp)
+
+# Add the source files to the executable target
+add_executable(main ${SOURCE_FILES})
 

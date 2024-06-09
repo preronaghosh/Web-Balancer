@@ -4,6 +4,8 @@
 #include <functional>
 #include <thread>
 #include <atomic>
+#include <string>
+#include <unordered_map>
 #include "ThreadPool.hpp"
 
 enum class ServerState {
@@ -56,17 +58,28 @@ public:
      */
     void selectedServerToHandleRequest(int clientSocket);
 
+    /**
+     * @brief Accessors of server's current health.
+     * Returns one of the types from enum ServerState
+     */
     ServerState getServerState() const { return currState.load(); }
-
     void setServerState(const ServerState state) { currState.store(state); }
+    
+    void setRateLimit(int requests, std::chrono::seconds duration);
 
 private:
     int port; ///< The port number on which the server listens for incoming connections.
     std::function<void(int)> requestHandler; ///< The function to handle incoming client connections.
 
     ThreadPool threadPool; ///< The thread pool for parallel request processing in the current server instance.
-    std::atomic<ServerState> currState; 
-    int serverFd;
+    std::atomic<ServerState> currState; ///< Stores server's current health
+    int serverFd; 
+
+    // Rate limit parameters - 1 request per second per IP
+    static int maxRequestsPerIp;
+    static std::chrono::seconds rateLimitDuration;
+    std::unordered_map<std::string, 
+        std::pair<std::atomic<int>, std::chrono::steady_clock::time_point>> requestCountsPerIp; ///< Tracks request counts per IP address
 
     /**
      * @brief Accepts incoming client connections and delegates them to the request handler function.
@@ -75,6 +88,11 @@ private:
      * For each accepted connection, it calls the request handler function to process the client request.
      */
     void acceptConnections();
+
+    /**
+     * @brief Checks for rate limiting on the server 
+     */
+    bool isRateLimited(const std::string& clientIp);
 };
 
 #endif // SERVER_HPP
