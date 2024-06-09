@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Cleanup previous build dir
 rm -rf build/
 mkdir build/

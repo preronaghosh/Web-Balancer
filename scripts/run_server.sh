@@ -32,6 +32,7 @@ if ! [[ "$SERVERS" =~ ^[0-9]+$ ]]; then
 fi
 
 # Cleanup previous build dir
+echo "Building.."
 rm -rf build/
 mkdir build/
 cd build/
