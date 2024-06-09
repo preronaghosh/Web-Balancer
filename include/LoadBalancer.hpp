@@ -39,6 +39,11 @@ public:
      */
     void start();
 
+    // used in testing
+    std::vector<std::shared_ptr<Server>> getServers() const { 
+        return servers;
+    }
+
 private:
     std::vector<std::shared_ptr<Server>> servers; ///< The pool of server instances managed by the load balancer.
     std::atomic<int> nextServer; ///< Index of the next server instance to which a client connection should be directed.
@@ -52,7 +57,6 @@ private:
      * by one of the worker threads.
      */
     void handleRequest(int clientSocket);
-
 
     /**
      * @brief Returns the next server that can handle the new incoming request.
