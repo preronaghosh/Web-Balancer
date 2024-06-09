@@ -1,4 +1,4 @@
-name: Ubuntu Build
+name: Ubuntu Build and Run Tests
 
 on:
   push:
@@ -30,3 +30,30 @@ jobs:
 
     - name: Build with CMake
       run: cmake --build build
+
+  run-tests:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+      with:
+        submodules: true
+
+    - name: Install dependencies
+      run: sudo apt-get update && sudo apt-get install -y cmake build-essential
+
+    - name: Create build directory
+      run: mkdir -p build
+
+    - name: Configure CMake
+      run: cmake -S . -B build
+
+    - name: Build and run tests
+      run: |
+        mkdir -p build
+        cd build
+        cmake ..
+        cmake --build .
+        ctest --output-on-failure
