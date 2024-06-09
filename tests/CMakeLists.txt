@@ -10,3 +10,9 @@ add_executable(tests src/test_main.cpp)
 
 # Link against Google Test libraries
 target_link_libraries(tests gtest gtest_main)
+
+# Enable testing
+enable_testing()
+
+# Add the test executable
+add_test(NAME tests COMMAND tests)
