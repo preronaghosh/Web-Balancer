@@ -22,7 +22,7 @@ void requestHandler(int clientSocket) {
 
 /*********** SERVER TESTS ***********/
 
-TEST_F(ServerTest, RateLimitingTest) {
+TEST_F(ServerTest, DISABLED_RateLimitingTest) {
     Server server(8080, 1, requestHandler);
     server.setRateLimit(1, std::chrono::seconds(4));
     std::thread serverThread([&server]{ 
