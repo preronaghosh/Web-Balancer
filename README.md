@@ -7,6 +7,7 @@ A simple multithreaded web server with a load balancer implemented in C++.
 - Handles multiple client requests concurrently.
 - Distributes requests across multiple servers.
 - Uses a thread pool for efficient task execution.
+- Rate limiting implemented to mitigate DDoS types of attacks.
 
 ## Dependencies
 - GoogleTest
